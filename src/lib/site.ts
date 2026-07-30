@@ -2,7 +2,7 @@ export const site = {
   name: "ibrahem.abodeif",
   nav: [
     { label: "Work", href: "#work" },
-    { label: "About", href: "#about" },
+    { label: "About", href: "/about" },
     { label: "Contact", href: "#contact" },
   ],
   // Drop the real PDF at public/cv.pdf — this 404s until then.
@@ -18,6 +18,8 @@ export const site = {
     primaryCta: { label: "Explore projects", href: "#work" },
     secondaryCta: { label: "Get in touch", href: "#contact" },
   },
+  // Deliberately a short, curated marquee for the strip under the hero — not
+  // the full inventory. `aboutPage.stack.groups` is the complete, grouped list.
   techStack: [
     "Next.js",
     "Nest.js",
@@ -64,7 +66,8 @@ export const site = {
       tail: ". I think like an owner, not just a coder — which means I care about the same things you do: shipping, reliability and growth.",
     },
     primaryCta: { label: "Let's build together", href: "#contact" },
-    secondaryCta: { label: "More about me", href: "#about" },
+    // This panel is the teaser; /about is the full version.
+    secondaryCta: { label: "More about me", href: "/about" },
   },
   work: {
     label: "Selected work",
@@ -103,6 +106,89 @@ export const site = {
       heading: "Have a product in mind?",
       note: "From idea to shipped — end to end.",
       action: { label: "Get in touch", href: "#contact" },
+    },
+  },
+  // The long version of `whoIAm`, which is only the teaser panel on the home
+  // page. Everything here is unique to /about — nothing is duplicated from a
+  // section above, and the closing CTA reads its heading from `contact` below.
+  aboutPage: {
+    label: "About",
+    heading: "I build products, not just features.",
+    lead: [
+      "I'm Ibrahem — a full-stack developer who runs his own SaaS in production. I'm curious about how things work, and constantly looking for ways to make them more efficient, which is most of what engineering actually is.",
+      "I work across the whole stack — interface, API and database — with a bias toward performance and SEO: fast, search-friendly software rather than software that merely works on my machine.",
+    ],
+    primaryCta: { label: "Work with me", href: "/contact" },
+    cvCta: { label: "Download CV" },
+    // Fills the slot a portrait would have taken, and answers the three things
+    // a recruiter checks first.
+    facts: [
+      { label: "Based in", value: "Egypt" },
+      { label: "Languages", value: "Arabic & English" },
+      { label: "Status", value: "Available for new projects" },
+    ],
+    howIThink: {
+      label: "How I think",
+      heading: "Running my own product changed how I build other people's.",
+      cards: [
+        {
+          n: "01",
+          title: "I think like an owner",
+          body: "When you pay for your own hosting and answer to your own users, you stop building features and start weighing what's worth building.",
+        },
+        {
+          n: "02",
+          title: "Shipped beats perfect",
+          body: "Software in production teaches you things a staging environment never will. I'd rather get something real in front of users and iterate.",
+        },
+        {
+          n: "03",
+          title: "Performance is a feature",
+          body: "Speed and SEO aren't a polish pass at the end — they're decisions about rendering, queries and payloads made while building.",
+        },
+      ],
+    },
+    stack: {
+      label: "Stack",
+      heading: "What I build with.",
+      note: "TypeScript end to end, across the whole stack.",
+      groups: [
+        {
+          title: "Frontend",
+          items: ["Next.js", "React", "TypeScript", "Tailwind CSS", "shadcn/ui"],
+        },
+        { title: "Backend", items: ["Nest.js", "Node.js", "REST APIs"] },
+        {
+          title: "Data",
+          items: ["PostgreSQL", "Neon", "MongoDB", "Supabase", "SQL Server"],
+        },
+        {
+          title: "Tooling",
+          items: ["React Query", "Redux", "Zod", "React Hook Form", "Git"],
+        },
+      ],
+    },
+    experience: {
+      label: "Experience",
+      heading: "Where I've worked.",
+      note: "The short version — what I own, and what it taught me.",
+      // Newest first. Add a role by adding an entry; the page needs no change.
+      roles: [
+        {
+          // Empty until the real start date is supplied. The row renders
+          // without a date rather than showing a placeholder.
+          period: "",
+          title: "Founder & Full-Stack Developer",
+          org: "Cradlen",
+          body: "Building and running clinic management and EMR software for women's health clinics — the product, the code, and the decisions behind it.",
+        },
+      ],
+    },
+    cta: {
+      // Heading comes from `contact.heading` — same promise, said once.
+      note: "Whether you're starting a product or hiring for a team — I'd like to hear about it.",
+      primary: { label: "Get in touch", href: "/contact" },
+      secondary: { label: "See my work", href: "/projects" },
     },
   },
   contact: {
