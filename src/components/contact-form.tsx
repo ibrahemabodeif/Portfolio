@@ -35,7 +35,16 @@ function FieldError({ id, children }: { id: string; children?: string }) {
   );
 }
 
-function ContactForm() {
+type ContactFormProps = {
+  /**
+   * Overrides the message field's copy. The dedicated /contact page asks a
+   * longer question than the home section has room for; everything else about
+   * the form — fields, names, validation — stays identical either way.
+   */
+  message?: { label: string; placeholder: string };
+};
+
+function ContactForm({ message = form.message }: ContactFormProps) {
   const [state, formAction, isPending] = useActionState(
     sendMessage,
     initialState
@@ -153,7 +162,7 @@ function ContactForm() {
 
       <div>
         <Label htmlFor="message" className={labelClass}>
-          {form.message.label}
+          {message.label}
         </Label>
         <Textarea
           id="message"
@@ -164,7 +173,7 @@ function ContactForm() {
           rows={5}
           value={fields.message}
           onChange={update("message")}
-          placeholder={form.message.placeholder}
+          placeholder={message.placeholder}
           aria-invalid={!!errors.message}
           aria-describedby={describedBy("message")}
           className="mt-2 min-h-32 rounded-lg"

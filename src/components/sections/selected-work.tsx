@@ -3,11 +3,11 @@ import Link from "next/link";
 import { ArrowUpRightIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import { site } from "@/lib/site";
+import { site, featuredProject, otherProjects, projectHref } from "@/lib/site";
 import { SectionLabel } from "@/components/section-label";
 import { Button } from "@/components/ui/button";
 
-const { label, heading, allProjects, featured, projects, cta } = site.work;
+const { label, heading, allProjects, featuredPrefix, cta } = site.work;
 
 const cardShell =
   "group relative flex flex-col overflow-hidden rounded-xl border border-border bg-card transition-colors hover:border-foreground/20 focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 focus-within:ring-offset-background";
@@ -25,7 +25,7 @@ const zoom =
 function SelectedWork() {
   return (
     <section id="work" className="mt-3 scroll-mt-24 md:mt-4 mx-3 md:mx-4">
-      <div className="mx-auto w-full max-w-6xl px-6 py-14 md:px-8 md:py-20">
+      <div className="reveal mx-auto w-full max-w-6xl px-6 py-14 md:px-8 md:py-20">
         <SectionLabel>{label}</SectionLabel>
 
         <div className="mt-6 grid items-end gap-6 md:grid-cols-12">
@@ -47,25 +47,27 @@ function SelectedWork() {
           <article className={cn(cardShell, "md:col-span-2")}>
             <div className={cn(imageFrame, "aspect-2/1")}>
               <Image
-                src={featured.image}
-                alt={featured.imageAlt}
+                src={featuredProject.image}
+                alt={featuredProject.imageAlt}
                 fill
                 sizes="(min-width: 768px) 66vw, 100vw"
                 className={zoom}
               />
             </div>
             <div className="p-7 md:p-8">
-              <SectionLabel>{featured.label}</SectionLabel>
+              <SectionLabel>
+                {featuredPrefix} · {featuredProject.category}
+              </SectionLabel>
               <h3 className="mt-5 text-2xl font-semibold tracking-tight md:text-3xl">
-                <Link href={featured.href} className={cardLink}>
-                  {featured.name}
+                <Link href={projectHref(featuredProject)} className={cardLink}>
+                  {featuredProject.name}
                 </Link>
               </h3>
               <p className="mt-4 max-w-xl text-sm leading-relaxed text-muted-foreground md:text-[15px]">
-                {featured.body}
+                {featuredProject.summary}
               </p>
               <ul className="mt-6 flex flex-wrap gap-2">
-                {featured.stack.map((tech) => (
+                {featuredProject.stack.map((tech) => (
                   <li
                     key={tech}
                     className="rounded-md border border-border bg-secondary/50 px-2.5 py-1 font-mono text-[11px] text-muted-foreground"
@@ -78,8 +80,8 @@ function SelectedWork() {
           </article>
 
           <div className="flex flex-col gap-5">
-            {projects.map((project) => (
-              <article key={project.name} className={cn(cardShell, "flex-1")}>
+            {otherProjects.map((project) => (
+              <article key={project.slug} className={cn(cardShell, "flex-1")}>
                 <div className={cn(imageFrame, "aspect-7/3")}>
                   <Image
                     src={project.image}
@@ -94,12 +96,12 @@ function SelectedWork() {
                     {project.category}
                   </span>
                   <h3 className="mt-3 text-xl font-semibold tracking-tight">
-                    <Link href={project.href} className={cardLink}>
+                    <Link href={projectHref(project)} className={cardLink}>
                       {project.name}
                     </Link>
                   </h3>
                   <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                    {project.body}
+                    {project.tagline}
                   </p>
                 </div>
               </article>

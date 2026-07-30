@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { MenuIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -19,8 +20,12 @@ import {
 const focusRing =
   "rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background";
 
+// A nav entry is a real route when it has nothing to scroll to.
+const isRoute = (href: string) => !href.includes("#");
+
 function SiteHeader() {
   const [scrolled, setScrolled] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
     // React bails out when the boolean is unchanged, so this does not
@@ -46,19 +51,32 @@ function SiteHeader() {
           <Wordmark className="text-lg md:text-xl" />
         </Link>
 
+        {/* Fragment hrefs stay plain <a> on purpose: a router navigation would
+            make Next suspend the smooth `scroll-behavior` (see
+            data-scroll-behavior in layout.tsx), turning the in-page jump
+            instant. Off the home page that costs a full load, which is the
+            right trade for keeping the scroll smooth. Real routes have no
+            fragment to scroll to, so they get client-side navigation. */}
         <nav className="hidden items-center gap-7 md:flex">
-          {site.nav.map((item) => (
-            <a
-              key={item.href}
-              href={item.href}
-              className={cn(
-                "text-sm text-muted-foreground transition-colors hover:text-foreground",
-                focusRing
-              )}
-            >
-              {item.label}
-            </a>
-          ))}
+          {site.nav.map((item) => {
+            const className = cn(
+              "text-sm transition-colors hover:text-foreground",
+              pathname === item.href
+                ? "text-foreground"
+                : "text-muted-foreground",
+              focusRing
+            );
+
+            return isRoute(item.href) ? (
+              <Link key={item.href} href={item.href} className={className}>
+                {item.label}
+              </Link>
+            ) : (
+              <a key={item.href} href={item.href} className={className}>
+                {item.label}
+              </a>
+            );
+          })}
           <Button
             nativeButton={false}
             render={<a href={site.cvHref} download />}
@@ -85,7 +103,13 @@ function SiteHeader() {
             {site.nav.map((item) => (
               <DropdownMenuItem
                 key={item.href}
-                render={<a href={item.href} />}
+                render={
+                  isRoute(item.href) ? (
+                    <Link href={item.href} />
+                  ) : (
+                    <a href={item.href} />
+                  )
+                }
               >
                 {item.label}
               </DropdownMenuItem>

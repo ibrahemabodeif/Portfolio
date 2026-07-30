@@ -14,7 +14,7 @@ function WhoIAm() {
       // already defined in globals.css — no hardcoded dark colours here.
       className="dark mt-3 scroll-mt-24 bg-background text-foreground md:mt-4 mx-3 md:mx-4"
     >
-      <div className="mx-auto grid w-full max-w-6xl gap-x-10 gap-y-12 px-6 py-14 md:grid-cols-12 md:px-8 md:py-20">
+      <div className="reveal mx-auto grid w-full max-w-6xl gap-x-10 gap-y-12 px-6 py-14 md:grid-cols-12 md:px-8 md:py-20">
         <div className="flex flex-col justify-end md:col-span-5">
           <SectionLabel>{label}</SectionLabel>
           <p className="mt-6 text-[15px] font-semibold">{name}</p>

@@ -21,7 +21,7 @@ function Contact() {
       // Full-bleed, unlike #about — this is the page's closing block.
       className="dark scroll-mt-24 bg-background text-foreground"
     >
-      <div className="mx-auto w-full max-w-6xl px-6 py-16 md:px-8 md:py-24">
+      <div className="reveal mx-auto w-full max-w-6xl px-6 py-16 md:px-8 md:py-24">
         <div className="flex flex-col items-center text-center">
           <Badge
             variant="outline"

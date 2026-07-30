@@ -8,7 +8,7 @@ const { label, heading, note, cards } = site.whatIDo;
 function WhatIDo() {
   return (
     <section id="services" className="mt-3 scroll-mt-24 md:mt-4 mx-3 md:mx-4">
-      <div className="mx-auto w-full max-w-6xl px-6 py-14 md:px-8 md:py-20">
+      <div className="reveal mx-auto w-full max-w-6xl px-6 py-14 md:px-8 md:py-20">
         <SectionLabel>{label}</SectionLabel>
 
         <div className="mt-6 grid items-end gap-6 md:grid-cols-12">

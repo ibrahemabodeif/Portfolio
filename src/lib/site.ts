@@ -1,9 +1,129 @@
+/**
+ * One project, one shape. The home page and the /projects index both read from
+ * the single `projects` list below, so a description is only ever edited once.
+ *
+ * Fields the owner still has to supply are empty strings / empty arrays rather
+ * than placeholder values. Every consumer guards on them, so a blank field
+ * renders nothing at all instead of a dead link — and starts rendering the
+ * moment it is filled in. Adding a project means adding an entry here; no
+ * component changes.
+ */
+export type Project = {
+  slug: string;
+  name: string;
+  /** Short kicker above the name, e.g. "Marketplace". */
+  category: string;
+  /** Exactly one project should carry this — it gets the large card on /. */
+  featured?: boolean;
+  /* Three lengths, because there are three differently-sized slots. Each falls
+     back to the shorter one above it, so a new project only strictly needs a
+     tagline. */
+  /** One line — the small cards on the home page. */
+  tagline: string;
+  /** Medium — the large featured card on the home page. */
+  summary: string;
+  /** Full description — the /projects index. */
+  overview: string;
+  /** Not shown on the index — kept for the case-study pages. */
+  role: string;
+  liveUrl: string;
+  repoUrl: string;
+  /** Flip to true once /projects/<slug> exists, and the Case study button
+   *  appears. Keeps the index free of links to routes that aren't built. */
+  caseStudy?: boolean;
+  stack: string[];
+  image: string;
+  /** Intrinsic pixel size of `image`. The case-study hero frames the shot at
+   *  exactly this ratio so nothing is cropped — these screenshots differ in
+   *  shape (1.65:1 to 2.6:1), and a fixed frame silently cuts the wide ones. */
+  imageWidth: number;
+  imageHeight: number;
+  imageAlt: string;
+};
+
+export const projects: Project[] = [
+  {
+    slug: "cradlen",
+    name: "Cradlen",
+    category: "SaaS I run in production",
+    featured: true,
+    caseStudy: true,
+    tagline: "Clinic management & EMR software for women's health.",
+    summary:
+      "Clinic management & EMR software for women's health. It turns care into one continuous patient journey — every visit, exam and prescription on a single unified record, from first antenatal visit to delivery. Bilingual, RTL-ready, role-based access.",
+    overview:
+      "Clinic management & EMR software for women's health clinics. It turns care into one continuous patient journey — every visit, exam and prescription on a single unified medical record, from the first antenatal visit to delivery. Built bilingual (Arabic & English, RTL-ready) with role-based access for every staff member, scaling from solo clinics to multi-branch networks.",
+    role: "",
+    liveUrl: "https://www.cradlen.com/en",
+    repoUrl: "",
+    stack: ["Next.js", "Nest.js", "TypeScript", "PostgreSQL", "Neon"],
+    image: "/projects/cradlen.png",
+    imageWidth: 1356,
+    imageHeight: 823,
+    imageAlt:
+      "Cradlen landing page beside a patient journey timeline in the app",
+  },
+  {
+    slug: "homely",
+    name: "Homely",
+    category: "Marketplace",
+    tagline: "A two-sided marketplace for short-stay rentals.",
+    summary: "",
+    overview:
+      "A two-sided marketplace for short-stay rentals — advanced search, smart filters and a clean browsing experience for guests, backed by a host dashboard for listing properties and managing availability and reservations end to end.",
+    role: "",
+    liveUrl: "",
+    repoUrl: "",
+    stack: ["Next.js", "TypeScript", "Tailwind CSS", "Supabase", "Zod"],
+    image: "/projects/homely.png",
+    imageWidth: 1780,
+    imageHeight: 680,
+    imageAlt: "Homely home page with a stay search over a valley photo",
+  },
+  {
+    slug: "pegasus",
+    name: "Pegasus",
+    category: "E-commerce platform",
+    tagline: "A full store — storefront + admin dashboard, end to end.",
+    summary: "",
+    overview:
+      "A full e-commerce platform built end to end — a storefront with product filtering, sorting, cart and checkout, paired with an admin dashboard for managing products and tracking sales through real-time charts. Storefront and back office as one complete system.",
+    role: "",
+    liveUrl: "",
+    repoUrl: "",
+    stack: ["React.js", "Redux", "React Query", "Tailwind CSS", "Supabase"],
+    image: "/projects/pegasus.png",
+    imageWidth: 1864,
+    imageHeight: 728,
+    imageAlt: "Pegasus storefront showing a product collection grid",
+  },
+];
+
+/** `?? projects[0]` keeps this total, so the home page can never render empty
+ *  if the `featured` flag is dropped from every entry. */
+export const featuredProject: Project =
+  projects.find((project) => project.featured) ?? projects[0];
+
+export const otherProjects: Project[] = projects.filter(
+  (project) => project !== featuredProject,
+);
+
+/**
+ * Where a project's name should link. Single source of truth so no component
+ * can point at a case study that hasn't been built — flipping `caseStudy` on a
+ * project is the only change needed to light up every link to it.
+ */
+export const projectHref = (project: Project): string =>
+  project.caseStudy ? `/projects/${project.slug}` : "/projects";
+
 export const site = {
   name: "ibrahem.abodeif",
+  // Root-relative, not bare hashes: these have to resolve from /projects too,
+  // where "#work" would point at nothing.
   nav: [
-    { label: "Work", href: "#work" },
+    { label: "Work", href: "/#work" },
     { label: "About", href: "/about" },
-    { label: "Contact", href: "#contact" },
+    { label: "Contact", href: "/contact" },
   ],
   // Drop the real PDF at public/cv.pdf — this 404s until then.
   cvHref: "/cv.pdf",
@@ -73,39 +193,28 @@ export const site = {
     label: "Selected work",
     heading: "Products I've shipped.",
     allProjects: { label: "All projects", href: "/projects" },
-    // Screenshots live in public/projects/ — they 404 until the files are added.
-    featured: {
-      label: "Featured · SaaS I run in production",
-      name: "Cradlen",
-      body: "Clinic management & EMR software for women's health. It turns care into one continuous patient journey — every visit, exam and prescription on a single unified record, from first antenatal visit to delivery. Bilingual, RTL-ready, role-based access.",
-      stack: ["Next.js", "Nest.js", "TypeScript", "PostgreSQL", "Neon"],
-      image: "/projects/cradlen.png",
-      imageAlt:
-        "Cradlen landing page beside a patient journey timeline in the app",
-      href: "/projects/cradlen",
-    },
-    projects: [
-      {
-        category: "Marketplace",
-        name: "Homely",
-        body: "A two-sided marketplace for short-stay rentals.",
-        image: "/projects/homely.png",
-        imageAlt: "Homely home page with a stay search over a valley photo",
-        href: "/projects/homely",
-      },
-      {
-        category: "E-commerce platform",
-        name: "Pegasus",
-        body: "A full store — storefront + admin dashboard, end to end.",
-        image: "/projects/pegasus.png",
-        imageAlt: "Pegasus storefront showing a product collection grid",
-        href: "/projects/pegasus",
-      },
-    ],
+    // Prefix for the featured card's kicker; the rest comes from the project's
+    // own `category`, so the two never drift apart.
+    featuredPrefix: "Featured",
     cta: {
       heading: "Have a product in mind?",
       note: "From idea to shipped — end to end.",
       action: { label: "Get in touch", href: "#contact" },
+    },
+  },
+  projectsPage: {
+    label: "Projects",
+    heading: "Things I've built.",
+    lead: "A closer look at products I've shipped — the problem, what I built, and the stack behind it.",
+    liveLabel: "Visit live site",
+    caseStudyLabel: "Case study",
+    repoLabel: "GitHub",
+    cta: {
+      heading: "Like what you see?",
+      note: "Tell me about your product — I'll take it from idea to shipped.",
+      // Root-relative: this lives on /projects, so a bare "#contact" would
+      // point at nothing.
+      action: { label: "Get in touch", href: "/#contact" },
     },
   },
   // The long version of `whoIAm`, which is only the teaser panel on the home
@@ -155,7 +264,13 @@ export const site = {
       groups: [
         {
           title: "Frontend",
-          items: ["Next.js", "React", "TypeScript", "Tailwind CSS", "shadcn/ui"],
+          items: [
+            "Next.js",
+            "React",
+            "TypeScript",
+            "Tailwind CSS",
+            "shadcn/ui",
+          ],
         },
         { title: "Backend", items: ["Nest.js", "Node.js", "REST APIs"] },
         {
@@ -218,6 +333,49 @@ export const site = {
       submit: "Send message",
       sending: "Sending…",
       success: "Thanks — your message is on its way. I'll reply shortly.",
+    },
+  },
+  // Copy unique to /contact. Everything else that page shows — heading, badge,
+  // email, links, note, form labels — is read from `contact` above, so the
+  // page and the home section can never drift apart.
+  contactPage: {
+    lead: "Tell me where your product is and where you want it to go, and I'll come back with how I'd approach it.",
+    emailNote: "Straight to my inbox — no forms, no gatekeeping.",
+    formNote: "I read every message myself. No newsletter, no follow-up spam.",
+    // A visitor who navigated here on purpose gets a more pointed prompt than
+    // the one on the home section, which has to stay short.
+    message: {
+      label: "Tell me about it",
+      placeholder:
+        "What are you building, what's blocking you, and what does success look like?",
+    },
+    // Same facts as `contact.note`, phrased for a page where this is the only
+    // thing standing in for a conversation.
+    note: {
+      lead: "Based in ",
+      accent: "Egypt",
+      tail: ", working with teams across time zones. Comfortable in Arabic and English.",
+    },
+    next: {
+      label: "What happens next",
+      heading: "No mystery, no sales funnel.",
+      steps: [
+        {
+          n: "01",
+          title: "You get an honest reply",
+          body: "My first thoughts on your product — including if I think I'm the wrong fit for it.",
+        },
+        {
+          n: "02",
+          title: "We scope it together",
+          body: "We agree on what ships first, what can wait, and what it realistically takes.",
+        },
+        {
+          n: "03",
+          title: "You see progress early",
+          body: "Working software in front of you as it's built — not a black box that opens at the deadline.",
+        },
+      ],
     },
   },
   footer: {

@@ -134,6 +134,16 @@
   html {
     @apply font-sans;
   }
+
+  /* In-page anchors ease to their target instead of teleporting. Paired with
+     data-scroll-behavior="smooth" on <html>: as of Next 16 the router no
+     longer suspends this during navigation unless that attribute is present,
+     and a route change should still land instantly rather than scrolling. */
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
 }
 
 /* Page-load stagger. Delays are set per-element via inline animation-delay;
@@ -156,5 +166,43 @@
 @media (prefers-reduced-motion: reduce) {
   .rise {
     animation: none;
+  }
+}
+
+/* Scroll-linked section reveal: content eases up as it enters the viewport, so
+   arriving at a section — by scrolling or by clicking a nav link — resolves
+   rather than snaps. */
+@keyframes reveal {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+}
+
+/* Guarded three ways, deliberately:
+
+   @supports — this is CSS-only, driven by scroll position rather than by JS.
+   Browsers without scroll-driven animations (Firefox today) skip the rule and
+   render the final state, so content can never get stuck hidden the way an
+   IntersectionObserver reveal can when hydration is slow or JS fails.
+
+   prefers-reduced-motion — no transform, no fade.
+
+   The class goes on each section's inner container, never the <section>
+   itself, so the dark panels paint their background immediately instead of
+   fading in as a whole block. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .reveal {
+      animation-name: reveal;
+      animation-duration: auto;
+      animation-timing-function: ease-out;
+      animation-fill-mode: both;
+      animation-timeline: view();
+      /* A fixed distance, not a percentage of the element: percentages scale
+         with height, which would leave a tall section half-faded for most of
+         its own length. */
+      animation-range: entry 0 entry 280px;
+    }
   }
 }
