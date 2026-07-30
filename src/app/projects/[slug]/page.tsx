@@ -4,13 +4,7 @@ import { notFound } from "next/navigation";
 import { site, projects } from "@/lib/site";
 import { getCaseStudy } from "@/lib/case-studies";
 import { CaseStudyHero } from "@/components/case-study/hero";
-import {
-  ProblemBlock,
-  IdeaBlock,
-  BuiltBlock,
-  DecisionsBlock,
-  StandsBlock,
-} from "@/components/case-study/blocks";
+import { CaseStudyBlock } from "@/components/case-study/blocks";
 import { ClosingBlock } from "@/components/case-study/next-project";
 
 // Only the slugs below are served; anything else 404s without a runtime check.
@@ -63,11 +57,12 @@ export default async function CaseStudyPage({
     <div className="bg-muted">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-3 py-3 md:px-4 md:py-4">
         <CaseStudyHero project={project} study={study} />
-        <ProblemBlock data={study.problem} />
-        <IdeaBlock data={study.idea} />
-        <BuiltBlock data={study.built} />
-        <DecisionsBlock data={study.decisions} />
-        <StandsBlock data={study.stands} />
+        {/* Order and composition are per-project data, not a fixed sequence —
+            each study tells a different story. Index in the key because the
+            array is static content that never reorders at runtime. */}
+        {study.blocks.map((block, index) => (
+          <CaseStudyBlock key={`${block.kind}-${index}`} block={block} />
+        ))}
         <ClosingBlock data={study.closing} />
       </div>
     </div>

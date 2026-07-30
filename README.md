@@ -10,7 +10,7 @@ statically prerendered.
 | `/about` | The longer version of who I am |
 | `/contact` | The contact form on its own page |
 | `/projects` | Every project, with stack and links |
-| `/projects/[slug]` | Case study — built per project, SSG |
+| `/projects/[slug]` | Case study — SSG. Built: `cradlen`, `homely`, `pegasus` |
 
 The home page keeps its own `#about` and `#contact` sections as an in-page
 summary; the nav points at the dedicated routes.
@@ -75,7 +75,7 @@ src/
 │       └── [slug]/page.tsx  Case study (SSG, one per project that has one)
 ├── components/
 │   ├── sections/            One file per home-page section
-│   ├── case-study/          Panel shell, hero, content blocks, closing
+│   ├── case-study/          Panel shell, hero, block dispatcher, closing
 │   ├── ui/                  shadcn primitives
 │   ├── contact-form.tsx     Client component: form state + validation display
 │   ├── project-row.tsx      One project on the /projects index
@@ -85,7 +85,7 @@ src/
 │   └── wordmark.tsx         Shared by header and footer
 └── lib/
     ├── site.ts              All copy, plus the canonical `projects` list
-    ├── case-studies.ts      Long-form case-study content, keyed by slug
+    ├── case-studies.ts      Case-study content as block sequences, by slug
     ├── contact-action.ts    Server Action: validation + Resend
     └── utils.ts             cn()
 ```
@@ -113,6 +113,25 @@ page exists when the project has `caseStudy: true` in `site.ts` *and* an entry i
 flipping the flag lights up every link to it at once, and no component can point
 at a page that isn't there.
 
+**A case study is an ordered list of blocks, not a fixed set of sections.**
+Each entry in `case-studies.ts` declares `blocks: Block[]`, a discriminated union
+(`problem`, `idea`, `metrics`, `built`, `sides`, `decisions`), and the page maps
+over it. Projects genuinely tell different stories — Cradlen leads with a product
+thesis and ends on traction, Homely leads with the two-sided problem and puts its
+numbers inside a performance panel, Pegasus is a three-block story about the two
+halves of a store — so *which* blocks appear and in *what order* is per-project
+data. The `kind` field picks the component in one `switch`; adding a project
+means declaring its sequence, with no type or component change unless it needs a
+genuinely new layout. Homely and Pegasus both use `sides`, which shows how that
+scales: Pegasus turns on `dark` and gives each column an `image`, both optional,
+so Homely's text-only light version is untouched.
+
+**Blocks with nothing to say remove themselves.** `metrics` renders `null` when
+both its `stats` and `cards` are empty, and its stat row and footnote drop
+independently. That's the escape hatch for "no measured figures yet" — the
+numbers are commented out in the data rather than shipped as visible "add your
+score" placeholders.
+
 **The case study runs three surface levels.** Page ground (`bg-muted`), section
 panel (`bg-background`), card inside a panel (`bg-card`) — three ascending steps
 the token set already provides in both palettes, so the dark blocks need no
@@ -121,7 +140,21 @@ special-casing.
 **Unfilled project fields render nothing rather than something broken.**
 `role`, `liveUrl`, `repoUrl` and `stack` are guarded at every use site, so a
 half-filled entry is publishable and the links appear on their own once the
-strings are supplied. No placeholder `#` hrefs to remember to swap out.
+strings are supplied. No placeholder `#` hrefs to remember to swap out. The
+case-study meta bar goes further and reflows: empty cells are filtered out and
+the grid takes its column count from how many survive, so a half-filled bar
+still fills its row instead of leaving dead columns.
+
+**The case-study hero takes a list of buttons, not a fixed pair.** A study
+declares `actions: HeroAction[]`; the first renders filled and the rest
+outlined. Each action either carries its own `href` or names a `site.ts` field
+via `use: "liveUrl" | "repoUrl"`, so a project's own URLs are never written
+twice. Pegasus needs this — it ships as two deployments with two repos, so its
+hero links four places, while Cradlen and Homely link two. An action that
+resolves to an empty string renders nothing, which is how Pegasus's two
+dashboard links stay switched off without a placeholder. `isExternal()` drives
+both `target="_blank"`/`rel="noopener noreferrer"` and the `↗`: the arrow means
+"this leaves the site", so Cradlen's internal `Work with me` doesn't get one.
 
 **In-page navigation is smooth; route changes are instant.** `globals.css` sets
 `scroll-behavior: smooth`, and `data-scroll-behavior="smooth"` on `<html>` tells
@@ -174,26 +207,47 @@ frame silently crops some of them — a 2:1 frame cut 18% off the bottom of
 Cradlen's, which is the kind of thing that reads as a layout bug rather than a
 crop.
 
+**The `sides` thumbnails break that rule on purpose.** Pegasus's two surface
+shots are 2.56:1 and 2.13:1 and sit side by side, so framing each at its own
+ratio would leave the two columns different heights. They use a fixed 5:2
+`object-cover object-top` frame instead: the storefront comes out effectively
+uncropped, the dashboard loses its bottom rows, and the pair line up. These
+identify a surface rather than being read, which is why the hero's rule doesn't
+apply.
+
+**Non-default image qualities have to be allowlisted.** Next 16 only optimizes
+the values in `images.qualities` (`next.config.ts`), because an open-ended
+`quality` prop would let anyone request arbitrary re-encodes off the image
+route. The `sides` thumbnails ask for 65 — they render at about a quarter of the
+hero's width. That also keeps their request URL distinct from the hero's when a
+study reuses the same file, as Pegasus does: Next tracks images in a `Map` keyed
+by src, so a shared src lets a lazy thumbnail overwrite the eager hero's entry
+and produces a bogus "LCP image is lazy" warning in dev.
+
 ## Known gaps
 
 Nothing here renders broken — every one of these is a guarded field that simply
 shows nothing until it's filled in.
 
-- **The "Running in the real world" traction block is switched off.** Its
-  `stats` entries are commented out in `case-studies.ts`, and `StandsBlock`
-  returns `null` on an empty array, so the section drops out of the page
-  entirely. The heading, note and footnote are still there: uncomment the four
-  entries and fill in each `value` to bring it back.
-- **`repoUrl` is empty on all three projects**, so no "GitHub" button renders.
-  `liveUrl` is set for Cradlen only — Homely and Pegasus show no "Visit live
-  site" button until theirs land.
-- **`role` is empty on all three.** Not used on the index; it's there for the
-  case-study pages.
-- **Only Cradlen has a case study.** Homely and Pegasus link to the `/projects`
-  index instead, and `/projects/homely` correctly 404s. Adding one means an
-  entry in `case-studies.ts` plus `caseStudy: true`.
+- **Both stat blocks are switched off.** Cradlen's "Running in the real world"
+  traction figures and Homely's four performance numbers are commented out in
+  `case-studies.ts`. `MetricsBlock` returns `null` when a block has neither
+  stats nor cards, so Cradlen's section drops out entirely, while Homely's
+  survives on its three numbered cards with the stat row and footnote hidden.
+  Uncomment the entries and fill in each `value` to bring them back.
+- **Pegasus's two dashboard links are blank.** Its hero declares four actions,
+  but `Visit dashboard` and `Dashboard code` have empty hrefs in
+  `case-studies.ts`, so only two buttons render. Paste the dashboard's live and
+  repo URLs into the two marked lines and the 4-up appears.
+- **`repoUrl` is empty on Cradlen**, so it shows no "GitHub" button on the index
+  and no "View code" in its hero. Homely and Pegasus have theirs.
+- **`role` is empty on all three** `Project` entries. Not used on the index; the
+  case-study meta bar reads its own `meta` array in `case-studies.ts` rather
+  than this field, and all three studies fill it in there.
 - **Homely and Pegasus have no `summary`**, so the home page's large featured
   card would fall back to their one-line tagline if either were made featured.
+- **The first project image on `/projects` isn't marked `priority`**, so Next
+  logs an LCP advisory in dev. Harmless, but it's a real above-the-fold image.
 - `public/cv.pdf` is absent, so the "Download CV" button 404s.
 
 ## Deployment

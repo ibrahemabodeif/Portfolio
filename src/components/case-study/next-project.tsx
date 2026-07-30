@@ -11,7 +11,7 @@ function ClosingBlock({ data }: { data: CaseStudy["closing"] }) {
   const next = projects.find((project) => project.slug === data.next.slug);
 
   return (
-    <Panel className="px-6 py-12 md:px-10 md:py-16">
+    <Panel dark={data.dark} className="px-6 py-12 md:px-10 md:py-16">
       <div className="grid items-center gap-10 md:grid-cols-12">
         <div className="md:col-span-6">
           <h2 className="text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
