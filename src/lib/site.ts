@@ -288,16 +288,29 @@ export const site = {
     experience: {
       label: "Experience",
       heading: "Where I've worked.",
-      note: "The short version — what I own, and what it taught me.",
-      // Newest first. Add a role by adding an entry; the page needs no change.
+      note: "The short version — employed, freelance, and running my own.",
+      // Newest first, by start date. Add a role by adding an entry; the page
+      // needs no change. Periods are natural case — the label class uppercases
+      // them in CSS. Granularity is deliberately mixed: months where the dates
+      // are known to the month, years where they aren't.
       roles: [
         {
-          // Empty until the real start date is supplied. The row renders
-          // without a date rather than showing a placeholder.
-          period: "",
+          period: "2026 — Present",
           title: "Founder & Full-Stack Developer",
           org: "Cradlen",
           body: "Building and running clinic management and EMR software for women's health clinics — the product, the code, and the decisions behind it.",
+        },
+        {
+          period: "Aug 2025 — Feb 2026",
+          title: "Backend Engineer",
+          org: "Next IT Generation",
+          body: "Backend work in .NET across two production systems — an ERP platform and a hotel management platform — building the APIs, data models and business logic behind both.",
+        },
+        {
+          period: "2025 — Present",
+          title: "Full-Stack Developer",
+          org: "Freelance",
+          body: "Client work across the whole stack — interface, API and database — taking web apps from an empty repo to something deployed and running.",
         },
       ],
     },
