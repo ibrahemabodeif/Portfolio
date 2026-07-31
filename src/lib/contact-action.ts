@@ -67,7 +67,7 @@ export async function sendMessage(
     const { error } = await resend.emails.send({
       // Resend's sandbox sender. Swap for an address on a verified domain
       // to deliver to recipients other than the account owner.
-      from: "Portfolio",
+      from: "Portfolio <portfolio@ibrahemabodeif.com>",
       to,
       replyTo: values.email,
       subject: `${values.name}`,
